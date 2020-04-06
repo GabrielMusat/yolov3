@@ -22,6 +22,7 @@ from keras.utils.vis_utils import plot_model as plot
 
 parser = argparse.ArgumentParser(description='Darknet To Keras Converter.')
 parser.add_argument('--cfg', required=True, help='Path to Darknet cfg file.')
+parser.add_argument('--quantize', action="store_true")
 parser.add_argument('--weights', required=True, help='Path to Darknet weights file.')
 parser.add_argument('--output', help='Path to output tflite model file.')
 parser.add_argument('--img-height', default=416, type=int, help='Image height')
@@ -261,9 +262,12 @@ def _main(args):
         plot(model, to_file='{}.png'.format(output_root), show_shapes=True)
         print('Saved model plot to {}.png'.format(output_root))
 
-    from tensorflow.lite.python.lite import TFLiteConverter
-    model = TFLiteConverter.from_keras_model_file("model.h5", input_shapes={'input_1': [None, args.img_height, args.img_width, 3]}).convert()
-    open("model.tflite" if not args.output else args.output, "wb").write(model)
+    import tensorflow as tf
+    tflite = tf.lite.TFLiteConverter.from_keras_model_file("model.h5", input_shapes={'input_1': [None, args.img_height, args.img_width, 3]})
+    if args.quantize:
+        tflite.optimizations = [tf.lite.Optimize.DEFAULT]
+        tflite.target_spec.supported_types = [tf.lite.constants.FLOAT16]
+    open("model.tflite" if not args.output else args.output, "wb").write(tflite.convert())
     os.remove("model.h5")
 
 

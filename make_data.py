@@ -44,6 +44,8 @@ for file in tqdm(files):
 
             xyxy = {el.tagName: int(el.firstChild.data) for el in bndbox if not isinstance(el, minidom.Text)}
             xmin, ymin, xmax, ymax = xyxy["xmin"], xyxy["ymin"], xyxy["xmax"], xyxy["ymax"]
+            if not size['width'] or not size['height']:
+                continue
             x = ((xmax + xmin) / 2) / size["width"]
             y = ((ymax + ymin) / 2) / size["height"]
             w = (xmax - xmin) / size["width"]

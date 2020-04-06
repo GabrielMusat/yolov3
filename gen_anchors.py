@@ -155,6 +155,8 @@ def _main_():
     for image in train_imgs:
         print(image['filename'])
         for obj in image['object']:
+            if not image['width'] or not image['height']:
+                continue
             relative_w = (float(obj['xmax']) - float(obj['xmin'])) / image['width']
             relatice_h = (float(obj["ymax"]) - float(obj['ymin'])) / image['height']
             annotation_dims.append(tuple(map(float, (relative_w, relatice_h))))
